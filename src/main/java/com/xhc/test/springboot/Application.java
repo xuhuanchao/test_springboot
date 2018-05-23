@@ -1,18 +1,13 @@
 package com.xhc.test.springboot;
 
+import org.apache.log4j.PropertyConfigurator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.ApplicationContext;
 import org.springframework.scheduling.annotation.EnableScheduling;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 
 /**
@@ -24,12 +19,20 @@ public class Application  implements CommandLineRunner {
 
     private static final Logger log = LoggerFactory.getLogger(Application.class);
 
-    @Autowired
-    DBInit dbInit;
+    public static ApplicationContext ctx;
+
+    public static void start(String args[]) {
+        String path = Main.class.getClassLoader().getResource("./").getPath();
+        PropertyConfigurator.configure(path+ "config/log4j.properties");
+        ctx = SpringApplication.run(Application.class, args);
+        log.info("ctx complete.");
+    }
+
+
+
 
     @Override
     public void run(String... strings) throws Exception {
-        dbInit.initDB();
-        log.info("springboot has started!");
+        log.info("CommandLineRunner work");
     }
 }

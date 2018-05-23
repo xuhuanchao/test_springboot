@@ -14,4 +14,6 @@ public interface StudentService {
     public List<Student> findStudentByAgeRange(int age1, int age2);
 
     public Student findStduentById(long id);
+
+    public void AddStudent(Student student);
 }

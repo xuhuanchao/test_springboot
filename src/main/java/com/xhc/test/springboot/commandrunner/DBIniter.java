@@ -1,8 +1,10 @@
-package com.xhc.test.springboot;
+package com.xhc.test.springboot.commandrunner;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.CommandLineRunner;
+import org.springframework.core.annotation.Order;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 
@@ -16,9 +18,10 @@ import java.util.stream.Stream;
  * Created by xuhuanchao on 2018/5/22.
  */
 @Component
-public class DBInit {
+@Order(value=1)
+public class DBIniter implements CommandLineRunner {
 
-    private static final Logger log = LoggerFactory.getLogger(DBInit.class);
+    private static final Logger log = LoggerFactory.getLogger(DBIniter.class);
 
     @Autowired
     JdbcTemplate jdbcTemplate;
@@ -50,5 +53,10 @@ public class DBInit {
                 "SELECT id, first_name, last_name FROM customers WHERE first_name = ?", new Object[] { "Josh" },
                 (rs, rowNum) -> new Customer(rs.getLong("id"), rs.getString("first_name"), rs.getString("last_name"))
         ).forEach(customer -> log.info(customer.toString()));*/
+    }
+
+    @Override
+    public void run(String... args) throws Exception {
+        initDB();
     }
 }

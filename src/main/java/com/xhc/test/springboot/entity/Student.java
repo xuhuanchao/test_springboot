@@ -4,12 +4,13 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import java.io.Serializable;
 
 /**
  * Created by xuhuanchao on 2018/5/22.
  */
 @Entity
-public class Student {
+public class Student implements Serializable{
 
     @Id
     @GeneratedValue(strategy= GenerationType.AUTO)
@@ -40,8 +41,8 @@ public class Student {
     @Override
     public String toString() {
         return String.format(
-                "Student[id=%d, firstName='%s', lastName='%s']",
-                id, firstName, lastName);
+                "Student[id=%d, firstName='%s', lastName='%s', levle='%s', age=%d]",
+                id, firstName, lastName, level, age);
     }
 
     public long getId() {
