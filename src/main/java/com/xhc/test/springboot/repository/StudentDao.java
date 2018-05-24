@@ -1,7 +1,6 @@
-package com.xhc.test.springboot.dao;
+package com.xhc.test.springboot.repository;
 
 import com.xhc.test.springboot.entity.Student;
-import org.springframework.data.jpa.repository.Query;
 
 import java.util.List;
 

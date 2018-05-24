@@ -1,13 +1,12 @@
 package com.xhc.test.springboot.service;
 
-import com.xhc.test.springboot.dao.StudentDao;
-import com.xhc.test.springboot.dao.StudentRepository;
+import com.xhc.test.springboot.repository.StudentDao;
+import com.xhc.test.springboot.repository.StudentRepository;
 import com.xhc.test.springboot.entity.Student;
+import com.xhc.test.springboot.util.RedisUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.context.annotation.PropertySource;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -19,7 +18,7 @@ import java.util.concurrent.TimeUnit;
  * Created by xuhuanchao on 2018/5/22.
  */
 @Service
-@ConfigurationProperties(prefix = "student")
+@ConfigurationProperties(prefix = "redis.student")
 public class StudentServiceImpl implements StudentService {
 
     @Autowired
@@ -28,8 +27,11 @@ public class StudentServiceImpl implements StudentService {
     @Autowired
     private StudentDao studentDao;
 
-    @Resource
-    private RedisTemplate redisTemplate;
+//    @Resource
+//    private RedisTemplate redisTemplate;
+
+    @Autowired
+    private RedisUtil redisUtil;
 
     private String queryAllKey;
 
@@ -41,40 +43,47 @@ public class StudentServiceImpl implements StudentService {
     @Override
     public List<Student> getAllStudents() {
         List<Student> list = null;
-        Object o = redisTemplate.opsForValue().get(queryAllKey);
+        if(redisUtil != null){
+            Object o = redisUtil.get("getAllStudents");
+            list = (List<Student>)o;
+        }else{
+            list = studentDao.getAllStudents();
+        }
+
+        /*Object o = redisTemplate.opsForValue().get(queryAllKey);
         if(o != null){
             list = (List<Student>)o;
         }else{
             list = studentDao.getAllStudents();
             redisTemplate.opsForValue().set(queryAllKey, list, 5, TimeUnit.MINUTES);
-        }
+        }*/
         return list;
     }
 
     @Override
     public List<Student> findStudentByAgeRange(int age1, int age2) {
         List<Student> list = null;
-        Object o = redisTemplate.opsForValue().get(queryByAgeRangeKey+age1+"&"+age2);
-        if(o != null){
-            list = (List<Student>)o;
-        }else{
-            list = studentRepository.findByAgeRange(age1, age2);
-            redisTemplate.opsForValue().set(queryByAgeRangeKey+age1+"&"+age2, list, 5, TimeUnit.MINUTES);
-        }
+//        Object o = redisTemplate.opsForValue().get(queryByAgeRangeKey+age1+"&"+age2);
+//        if(o != null){
+//            list = (List<Student>)o;
+//        }else{
+//            list = studentRepository.findByAgeRange(age1, age2);
+//            redisTemplate.opsForValue().set(queryByAgeRangeKey+age1+"&"+age2, list, 5, TimeUnit.MINUTES);
+//        }
         return list;
     }
 
     @Override
     public Student findStduentById(long id) {
         Student s = null;
-        Object o = redisTemplate.opsForValue().get(queryByIdKey+id);
-        if(o != null){
-            s = (Student)o;
-        }else{
-            Optional<Student> student = studentRepository.findById(id);
-            s = student.get();
-            redisTemplate.opsForValue().set(queryByIdKey+id, s, 5, TimeUnit.MINUTES);
-        }
+//        Object o = redisTemplate.opsForValue().get(queryByIdKey+id);
+//        if(o != null){
+//            s = (Student)o;
+//        }else{
+//            Optional<Student> student = studentRepository.findById(id);
+//            s = student.get();
+//            redisTemplate.opsForValue().set(queryByIdKey+id, s, 5, TimeUnit.MINUTES);
+//        }
         return s;
     }
 

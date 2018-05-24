@@ -2,11 +2,13 @@ package com.xhc.test.springboot;
 
 import com.xhc.test.springboot.consumer.RedisChatReceiver;
 import com.xhc.test.springboot.consumer.RedisOrderReceiver;
+import com.xhc.test.springboot.schedule.CheckStudentCacheSchedule;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.listener.PatternTopic;
 import org.springframework.data.redis.listener.RedisMessageListenerContainer;
@@ -20,12 +22,13 @@ import java.util.concurrent.CountDownLatch;
  */
 @Configuration
 @PropertySource(value = "classpath:/config/redis.properties")
-public class SpringConfiguration_Redis {
+@PropertySource(value= "classpath:config/redisKey.properties")
+public class SpringConfig_Redis {
 
-    @Value("${topic.chat}")
+    @Value("${redis.topic.chat}")
     private String topicChat;
 
-    @Value("${topic.order}")
+    @Value("${redis.topic.order}")
     private String topicOrder;
 
     @Bean
@@ -73,5 +76,12 @@ public class SpringConfiguration_Redis {
     @Bean
     StringRedisTemplate template(RedisConnectionFactory connectionFactory) {
         return new StringRedisTemplate(connectionFactory);
+    }
+
+
+
+    @Bean
+    CheckStudentCacheSchedule checkStudentCacheSchedule(){
+        return new CheckStudentCacheSchedule();
     }
 }

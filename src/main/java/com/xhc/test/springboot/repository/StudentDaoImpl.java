@@ -1,4 +1,4 @@
-package com.xhc.test.springboot.dao;
+package com.xhc.test.springboot.repository;
 
 import com.xhc.test.springboot.entity.Student;
 import org.slf4j.Logger;

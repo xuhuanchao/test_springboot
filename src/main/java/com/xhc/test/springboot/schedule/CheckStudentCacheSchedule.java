@@ -6,7 +6,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.context.annotation.PropertySource;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -16,8 +15,7 @@ import java.util.List;
 /**
  * Created by xuhuanchao on 2018/5/23.
  */
-@Component
-@ConfigurationProperties(prefix = "student")
+@ConfigurationProperties(prefix = "redis.student")
 public class CheckStudentCacheSchedule implements CommandLineRunner{
 
     private static final Logger log = LoggerFactory.getLogger(CheckStudentCacheSchedule.class);
