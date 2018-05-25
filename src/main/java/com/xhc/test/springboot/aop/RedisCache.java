@@ -17,7 +17,6 @@ import org.springframework.stereotype.Component;
  * Created by xuhuanchao on 2018/5/24.
  */
 @Aspect
-@Component
 public class RedisCache {
 
     private static final Logger log = LoggerFactory.getLogger(RedisCache.class);
@@ -42,7 +41,7 @@ public class RedisCache {
      execution(* com.test.spring.aop.pointcutexp..JoinPointObjP2.*(..))")
      ***> 最靠近(..)的为方法名,靠近.*(..))的为类名或者接口名,如上例的JoinPointObjP2.*(..))
      */
-    @Pointcut("execution(* com.xhc.test.springboot.repository..*.find*(..)) || execution(* com.xhc.test.springboot.repository..*.get*(..))")
+    @Pointcut("execution(* com.xhc.test.springboot.rest..*.find*(..))")
     public void executeQuery() {
     }
 
@@ -52,13 +51,21 @@ public class RedisCache {
     }
 
     @After("executeQuery()")
-    public void saveRedis(JoinPoint point){
+    public void cacheStudentQueryTimes(JoinPoint point){
         Object[] args = point.getArgs();
-        String name = point.getSignature().getName();
+        String name = point.getSignature().getName(); //获得方法名
+        Object target = point.getTarget();  //获得对象
+        String key = target.getClass().getSimpleName() + "." + name;
         if(redisUtil != null){
-            redisUtil.put(name, 1);
+            Integer num = (Integer)redisUtil.get(key);
+            if(num ==null){
+                num = 1;
+            }else{
+                num ++;
+            }
+            redisUtil.put(key , num);
         }
-        log.info("aop point after execute");
+        log.info("aop point [Query student times] hsa saved.");
     }
 
     @Around("executeTranscation()")

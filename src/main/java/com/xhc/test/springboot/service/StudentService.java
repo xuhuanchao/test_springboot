@@ -1,6 +1,8 @@
 package com.xhc.test.springboot.service;
 
 import com.xhc.test.springboot.entity.Student;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 
@@ -9,11 +11,15 @@ import java.util.List;
  */
 public interface StudentService {
 
-    public List<Student> getAllStudents();
+    public List<Student> findAllStudents();
 
     public List<Student> findStudentByAgeRange(int age1, int age2);
 
     public Student findStduentById(long id);
 
-    public void AddStudent(Student student);
+    public void addStudent(Student student);
+
+    public Page<Student> findAllByPage(Pageable pageable);
+
+    public List<Student> findByLastNameLike(String lastName);
 }

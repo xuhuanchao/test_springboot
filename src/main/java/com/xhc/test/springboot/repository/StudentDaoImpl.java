@@ -31,7 +31,7 @@ public class StudentDaoImpl implements StudentDao{
     }
 
     @Override
-    public List<Student> getAllStudents() {
+    public List<Student> findAllStudents() {
         List<Student> list = jdbcTemplate.query(
                 "SELECT id, first_name, last_name, level, age FROM STUDENT",
                 (rs, rowNum) -> new Student(rs.getLong("id"), rs.getString("first_name"), rs.getString("last_name"), rs.getString("level"), rs.getInt("age"))

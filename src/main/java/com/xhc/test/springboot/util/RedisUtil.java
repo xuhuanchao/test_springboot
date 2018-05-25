@@ -11,13 +11,13 @@ import java.util.concurrent.TimeUnit;
 public class RedisUtil {
 
     @Resource
-    private RedisTemplate redisTemplate;
+    private RedisTemplate<String, Object> redisTemplate;
 
     private final static long DEFAULT_TIME = 5;
     private final static TimeUnit DEFAULT_TIMEUNIT = TimeUnit.MINUTES;
 
 
-    public void put(Object key, Object value){
+    public void put(String key, Object value){
         redisTemplate.opsForValue().set(key, value, DEFAULT_TIME, DEFAULT_TIMEUNIT);
     }
 

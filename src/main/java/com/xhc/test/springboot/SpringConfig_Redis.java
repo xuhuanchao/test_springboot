@@ -1,20 +1,33 @@
 package com.xhc.test.springboot;
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.PropertyAccessor;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.xhc.test.springboot.aop.RedisCache;
 import com.xhc.test.springboot.consumer.RedisChatReceiver;
 import com.xhc.test.springboot.consumer.RedisOrderReceiver;
 import com.xhc.test.springboot.schedule.CheckStudentCacheSchedule;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.CacheManager;
+import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
+import org.springframework.data.redis.cache.RedisCacheConfiguration;
+import org.springframework.data.redis.cache.RedisCacheManager;
+import org.springframework.data.redis.cache.RedisCacheWriter;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.listener.PatternTopic;
 import org.springframework.data.redis.listener.RedisMessageListenerContainer;
 import org.springframework.data.redis.listener.adapter.MessageListenerAdapter;
+import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
+import org.springframework.data.redis.serializer.RedisSerializer;
+import org.springframework.data.redis.serializer.StringRedisSerializer;
 import org.springframework.stereotype.Component;
 
+import java.time.Duration;
 import java.util.concurrent.CountDownLatch;
 
 /**
@@ -23,6 +36,7 @@ import java.util.concurrent.CountDownLatch;
 @Configuration
 @PropertySource(value = "classpath:/config/redis.properties")
 @PropertySource(value= "classpath:config/redisKey.properties")
+@EnableCaching
 public class SpringConfig_Redis {
 
     @Value("${redis.topic.chat}")
@@ -74,14 +88,58 @@ public class SpringConfig_Redis {
     }
 
     @Bean
-    StringRedisTemplate template(RedisConnectionFactory connectionFactory) {
+    StringRedisTemplate stringRedisTemplate(RedisConnectionFactory connectionFactory) {
         return new StringRedisTemplate(connectionFactory);
     }
 
+    @Bean(name="redisTemplate")
+    public RedisTemplate<String, String> redisTemplate(RedisConnectionFactory factory) {
 
+        RedisTemplate<String, String> template = new RedisTemplate<>();
+
+        RedisSerializer<String> redisSerializer = new StringRedisSerializer();
+
+        Jackson2JsonRedisSerializer jackson2JsonRedisSerializer = new Jackson2JsonRedisSerializer(Object.class);
+        ObjectMapper om = new ObjectMapper();
+        om.setVisibility(PropertyAccessor.ALL, JsonAutoDetect.Visibility.ANY);
+        om.enableDefaultTyping(ObjectMapper.DefaultTyping.NON_FINAL);
+        jackson2JsonRedisSerializer.setObjectMapper(om);
+
+        template.setConnectionFactory(factory);
+        //key序列化方式
+        template.setKeySerializer(redisSerializer);
+        //value序列化
+        template.setValueSerializer(jackson2JsonRedisSerializer);
+        //value hashmap序列化
+        template.setHashValueSerializer(jackson2JsonRedisSerializer);
+
+        return template;
+    }
 
     @Bean
     CheckStudentCacheSchedule checkStudentCacheSchedule(){
         return new CheckStudentCacheSchedule();
+    }
+
+    @Bean
+    RedisCache redisCache(){
+        return new RedisCache();
+    }
+
+    @Bean
+    CacheManager cacheManager(RedisConnectionFactory connectionFactory) {
+        //初始化一个RedisCacheWriter
+        RedisCacheWriter redisCacheWriter = RedisCacheWriter.nonLockingRedisCacheWriter(connectionFactory);
+        //设置CacheManager的值序列化方式为JdkSerializationRedisSerializer,但其实RedisCacheConfiguration默认就是使用StringRedisSerializer序列化key，JdkSerializationRedisSerializer序列化value,所以以下注释代码为默认实现
+        //ClassLoader loader = this.getClass().getClassLoader();
+        //JdkSerializationRedisSerializer jdkSerializer = new JdkSerializationRedisSerializer(loader);
+        //RedisSerializationContext.SerializationPair<Object> pair = RedisSerializationContext.SerializationPair.fromSerializer(jdkSerializer);
+        //RedisCacheConfiguration defaultCacheConfig=RedisCacheConfiguration.defaultCacheConfig().serializeValuesWith(pair);
+        RedisCacheConfiguration defaultCacheConfig = RedisCacheConfiguration.defaultCacheConfig();
+        //设置默认超过期时间是30秒
+        defaultCacheConfig.entryTtl(Duration.ofSeconds(30));
+        //初始化RedisCacheManager
+        RedisCacheManager cacheManager = new RedisCacheManager(redisCacheWriter, defaultCacheConfig);
+        return cacheManager;
     }
 }

@@ -11,6 +11,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 import java.io.File;
 import java.util.HashMap;
@@ -23,6 +24,7 @@ import java.util.Map;
  */
 @SpringBootApplication
 @EnableScheduling
+@EnableTransactionManagement
 public class Application  implements CommandLineRunner {
 
     private static final Logger log = LoggerFactory.getLogger(Application.class);
@@ -48,7 +50,7 @@ public class Application  implements CommandLineRunner {
                         Class<?> clazz = Class.forName("com.xhc.test.springboot." + fname);
                         log.info("class name :" + clazz);
                         boolean isConfig = clazz.isAnnotationPresent(Configuration.class);
-                        String moduleName = clazz.toString().substring(clazz.toString().lastIndexOf("_"));
+                        String moduleName = clazz.toString().substring(clazz.toString().lastIndexOf("_")+1);
 
                         if(isConfig){
                             appModule.put(moduleName, true);

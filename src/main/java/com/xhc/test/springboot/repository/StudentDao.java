@@ -11,5 +11,5 @@ public interface StudentDao {
 
     List<Student> findByAgeRange(int age1, int age2);
 
-    List<Student> getAllStudents();
+    List<Student> findAllStudents();
 }

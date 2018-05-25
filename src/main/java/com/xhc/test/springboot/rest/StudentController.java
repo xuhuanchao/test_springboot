@@ -21,19 +21,19 @@ public class StudentController {
     @Autowired
     private StudentService studentService;
 
-    @RequestMapping("/getAllStudents")
-    public List<Student> getAllStudents() {
-        return studentService.getAllStudents();
+    @RequestMapping("/findAllStudents")
+    public List<Student> findAllStudents() {
+        return studentService.findAllStudents();
     }
 
-    @RequestMapping("/queryStudentByAge")
-    public List<Student> queryStudentByAge(@RequestParam(value = "age1") int age1,
+    @RequestMapping("/findStudentByAge")
+    public List<Student> findStudentByAge(@RequestParam(value = "age1") int age1,
                                            @RequestParam(value = "age2") int age2){
         return studentService.findStudentByAgeRange(age1, age2);
     }
 
-    @RequestMapping("/queryStudentById")
-    public Student queryStudentById(@RequestParam(value = "id") long id){
+    @RequestMapping("/findStudentById")
+    public Student findStudentById(@RequestParam(value = "id") long id){
         return studentService.findStduentById(id);
     }
 }
